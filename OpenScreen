@@ -1,0 +1,13 @@
+\\Quadro: Contem vários divisores, definindo um template. Cada divisor pode abrir uma tela diferente.
+\\Script para abrir uma tela em um divisor de um quadro já aberto.
+
+Sub Grupo2_Click()
+		
+	Application.GetFrame("hpFrameSetContent01").OpenScreen("Geral.GeralAgua?4?"), 0
+			
+End Sub
+
+
+hpFrameSetContent01: Nome do divisor onde será aberta a tela
+Geral.GeralAgua: Caminho da tela
+?4?: Configuração para manter tela expandida
