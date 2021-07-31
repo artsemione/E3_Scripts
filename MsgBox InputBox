@@ -4,9 +4,22 @@ Prompt: Texto da caixa de mensagem
 Buttons: Valor numérico ou texto que identifique o botao a ser usado (Dentra uma lista de opções)
 Title: Título da caixa de mensagem
 
-Exemplo
+Exemplo 01
 
 Sub CommandButton_Click()
    MsgBox "Deseja realmente sair?", vbYesNo + vbQuestion, "Sair"
 End Sub
 
+Exemplo 02
+*Retorno do botão selecionado 
+
+if MsgBox ("Deseja realmente sair?", vbYesNo + vbQuestion, "Sair") = vbYes then
+   Application.Exit()
+end if
+
+InputBox(Prompt, [Title], [XPos], [YPos])
+
+Exemplo 01
+
+valor = InputBox("Insira o valor", "Título")
+Screen.Item("Texto01").Value = valor
