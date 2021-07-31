@@ -1,0 +1,12 @@
+MsgBox(Prompt, [Buttons], [Title])
+
+Prompt: Texto da caixa de mensagem
+Buttons: Valor numérico ou texto que identifique o botao a ser usado (Dentra uma lista de opções)
+Title: Título da caixa de mensagem
+
+Exemplo
+
+Sub CommandButton_Click()
+   MsgBox "Deseja realmente sair?", vbYesNo + vbQuestion, "Sair"
+End Sub
+
