@@ -1,0 +1,49 @@
+
+''TAMANHO DA POPUP - EM HIMETRIC
+POPUPWIDTH = 12250
+POPUPHEIGHT = 14631
+  
+''TAMANHO DO OBJETO iconPT.linkAnalogica
+TMTX = me.Width
+TMTY = me.Height
+
+''POSIÇÃO DO iconPT.linkAnalogica NA TELA
+PMTX = me.X
+PMTY = me.Y
+
+''CARREGA RESOLUÇÃO REAL DO MONITOR EM QUE A TELA ESTA ABERTA 
+SVP_Y = Application.Item("Resolution").Item("Screen_Y").Value
+SVP_X = Application.Item("Resolution").Item("Screen_X").Value
+
+''FATOR ENTRE A RESOLUÇÃO REAL DA TELA E A RESOLUÇÃO ABERTA DA TELA
+FatorTela = SVP_X/Application.WindowWidth
+
+''CONVERTE O TAMANHO DA TELA PARA HIMETRIC
+SVH_Y = ((SVP_Y*2540)/96)
+SVH_X = ((SVP_X*2540)/96)
+
+''CALCULA MARGEM PARA ABRIR A POPUP
+ERROX = (PMTX*FatorTela+TMTX+POPUPWIDTH)
+ERROY = (PMTY*FatorTela+TMTY+POPUPHEIGHT)
+
+''VERIFICA POSIÇÃO DE ABERTURA EM X
+if ERROX > SVH_X THEN	
+	PosX = (PMTX*FatorTela - POPUPWIDTH)	
+ELSE	
+	PosX = (PMTX*FatorTela + TMTX)
+END IF 
+
+''VERIFICA POSIÇÃO DE ABERTURA EM Y
+if ERROY > SVH_Y THEN	
+	PosY = (SVH_Y - POPUPHEIGHT-2000/FatorTela)
+		
+ELSE	
+	PosY = (PMTY*FatorTela+1500)
+END IF 
+	
+''POSIÇÃO DE ABERTURA NA TELA - EM PIXEL
+PosX_Px = (PosX*96)/2540
+PosY_Px = (PosY*96)/2540
+
+''ABRIR TELA MODAL
+Application.DoModal Tela,"Bateria",PosX_Px,PosY_PX,,,Arg,67
