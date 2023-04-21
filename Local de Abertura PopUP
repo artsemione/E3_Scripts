@@ -1,49 +1,119 @@
+Sub BT_Transparente_Click()
 
-''TAMANHO DA POPUP - EM HIMETRIC
-POPUPWIDTH = 12250
-POPUPHEIGHT = 14631
-  
-''TAMANHO DO OBJETO iconPT.linkAnalogica
-TMTX = me.Width
-TMTY = me.Height
+'======================== PARÂMETROS EDITÁVEIS ================
+set Icon				= iconMotor	
+set LinkDados 			= iconMotor.LinkBomba
 
-''POSIÇÃO DO iconPT.linkAnalogica NA TELA
-PMTX = me.X
-PMTY = me.Y
 
-''CARREGA RESOLUÇÃO REAL DO MONITOR EM QUE A TELA ESTA ABERTA 
-SVP_Y = Application.Item("Resolution").Item("Screen_Y").Value
-SVP_X = Application.Item("Resolution").Item("Screen_X").Value
+'======================== PASTA DADOS SCL  ================
+set PastaDadosSCL 		= Application.Item("DadosSCL")
+set PastaUserConfig 	= PastaDadosSCL.Item("UserConfig")
+set PastaLib 			= PastaDadosSCL.Item("Lib")
+set ItemCabecalho 		= PastaUserConfig.Item("HeaderHeigth")
+set ItemIsAdmin 		= PastaLib.Item("IsAdmin")
 
-''FATOR ENTRE A RESOLUÇÃO REAL DA TELA E A RESOLUÇÃO ABERTA DA TELA
-FatorTela = SVP_X/Application.WindowWidth
 
-''CONVERTE O TAMANHO DA TELA PARA HIMETRIC
-SVH_Y = ((SVP_Y*2540)/96)
-SVH_X = ((SVP_X*2540)/96)
+'======================== VARIÁVEIS ================
+GrupoPermitido 			= LinkDados.GrupoPermitido
+Permitido 				= Application.IsUserMemberOfGroup(GrupoPermitido)
+HeaderHeight_HM 		= ItemCabecalho.Value
+PopupWidth_HM 			= 12991
+PopupHeight_HM			= 9657	
+ClickMouseX 			= Application.GetMouseX()
+ClickMouseY 			= Application.GetMouseY()
+ScreenResX 				= Application.WindowWidth
+ScreenResY 				= Application.WindowHeight
 
-''CALCULA MARGEM PARA ABRIR A POPUP
-ERROX = (PMTX*FatorTela+TMTX+POPUPWIDTH)
-ERROY = (PMTY*FatorTela+TMTY+POPUPHEIGHT)
-
-''VERIFICA POSIÇÃO DE ABERTURA EM X
-if ERROX > SVH_X THEN	
-	PosX = (PMTX*FatorTela - POPUPWIDTH)	
-ELSE	
-	PosX = (PMTX*FatorTela + TMTX)
-END IF 
-
-''VERIFICA POSIÇÃO DE ABERTURA EM Y
-if ERROY > SVH_Y THEN	
-	PosY = (SVH_Y - POPUPHEIGHT-2000/FatorTela)
-		
-ELSE	
-	PosY = (PMTY*FatorTela+1500)
-END IF 
+IF ScreenResX > 1920 THEN
+	DoisMonitores = TRUE
+END IF
 	
-''POSIÇÃO DE ABERTURA NA TELA - EM PIXEL
-PosX_Px = (PosX*96)/2540
-PosY_Px = (PosY*96)/2540
+'======================== CÓDIGO ========================
+IF (Permitido = FALSE) THEN
+	
+	'SE NÃO HOUVER USUÁRIO LOGADO
+	IF (Application.User = "") THEN		
+		
+		'SE HOUVER DOIS MONITORES
+		IF DoisMonitores THEN	
+			IF ClickMouseX > ScreenResX/2 THEN
+				DeslocaTela = ScreenResX/2
+			END IF	
+		END IF
+		
+		'MENSAGEM PARA REALIZAR O LOGIN	
+		IF MsgBoxEx("Realize o Login",49 ,"Aviso",800+DeslocaTela,440) THEN 
+					
+			Application.Login 0,800+DeslocaTela,440,0
+					
+			IF Application.User <> "" THEN
+				RunEvent("Click")	
+			END IF				
+		END IF
+		
+	ELSE
+		
+		'MENSAGEM USUÁRIO NÃO AUTORIZADO	
+		MsgBoxEx "Usuário não autorizado",49 ,"Aviso",800+DeslocaTela,440	
+			
+	END IF
 
-''ABRIR TELA MODAL
-Application.DoModal Tela,"Bateria",PosX_Px,PosY_PX,,,Arg,67
+ELSE
+	  	
+	'TAMANHO DO OBJETO ICONE
+	SizeObjX_HM 	= Icon.Width
+	SizeObjY_HM 	= Icon.Height
+	
+	'POSIÇÃO DO ICONE NA TELA
+	PosObjX_HM 		= Icon.X
+	PosObjY_HM 		= Icon.Y + HeaderHeight_HM
+	
+	'POSICAO POPUP NA DIREITA	
+	PopupPosX_HM 	= PosObjX_HM + SizeObjX_HM 		
+	PopupPosY_HM 	= PosObjY_HM
+	
+	'CONVERSÃO DE HIMETRIC PARA PIXEL
+	SizeObjX		= (Icon.Width)*0.03795
+	SizeObjY 		= (Icon.Height)*0.03795
+	PopupWidth 		= (PopupWidth_HM)*0.03795
+	PopupHeight 	= (PopupHeight_HM)*0.03795
+	PopupPosX 		= (PopupPosX_HM)*0.03795	
+	PopupPosY 		= (PopupPosY_HM)*0.03795
+	
+	'CORREÇÃO DE POSIÇÃO NO EIXO X:
+	IF DoisMonitores THEN	
+	
+		IF ClickMouseX > ScreenResX/2 THEN
+			DeslocaPixelX = ScreenResX/2
+		END IF			
+		
+		IF PopupPosX + PopupWidth > ScreenResX/2 THEN	
+			PopupPosX = PopupPosX - PopupWidth - SizeObjX		
+		END IF
+			
+	ELSE
+
+		IF PopupPosX + PopupWidth > ScreenResX THEN	
+			PopupPosX = PopupPosX - PopupWidth - SizeObjX		
+		END IF			
+	END IF		
+	
+	'CORREÇÃO DE POSIÇÃO NO EIXO Y:
+	IF (PopupPosY + PopupHeight) > (ScreenResY - 120) THEN			
+		PopupPosY = ScreenResY - PopupHeight - 120		
+	END IF
+
+	'ABRIR TELA MODAL
+	Arg 		= LinkDados.PathName
+	Tela 		= LinkDados.Tela	
+	Application.DoModal Tela,"Bomba",(PopupPosX + DeslocaPixelX),PopupPosY,,,Arg,67	
+	
+END IF
+
+
+
+
+
+
+
+End Sub
